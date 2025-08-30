@@ -1,0 +1,58 @@
+services:
+  ollama:
+    image: ollama/ollama:latest          # 👈 Docker Hub (not ghcr)
+    container_name: ollama
+    ports:
+      - "11434:11434"                    # optional: access from host
+    volumes:
+      - ollama:/root/.ollama             # persist pulled models
+    healthcheck:                         # no curl/wget needed
+      test: ["CMD", "ollama", "ps"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  # one-shot model pull (uses .env OLLAMA_MODEL)
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["/bin/sh","-lc","ollama pull \"${OLLAMA_MODEL:-llama3.1:8b}\""]
+    volumes:
+      - ollama:/root/.ollama
+    restart: "no"
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    image: emobook-api:latest
+    env_file:
+      - ../.env
+    environment:
+      - EMOBOOK_ROOT=/app
+      - EMOBOOK_VAD_LEXICON=/app/resources/NRC-VAD-Lexicon-v2.1/NRC-VAD-Lexicon-v2.1.txt
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+    volumes:
+      - ../resources:/app/resources:ro
+      - ../data:/app/data
+      - ../benchmarks:/app/benchmarks
+      - ../uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  ollama:

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+data/*
+benchmarks/*
+uploads/*
+!data/raw/.keep
+!data/clean/.keep
+!data/chunks/.keep
+!data/scored/.keep
+!data/figures/.keep
