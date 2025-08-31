@@ -6,16 +6,21 @@ from typing import List, Dict, Any
 import numpy as np
 import pandas as pd
 
-# ---------- Paths / knobs ----------
-ROOT = Path(os.environ.get("EMOBOOK_ROOT", Path(__file__).resolve().parents[2]))
-RES_DIR = ROOT / "resources"
-DATA_DIR = ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
+# Default to the package directory (…/src/emobook) so resources/data resolve correctly
+PKG_ROOT = Path(__file__).resolve().parent          # …/src/emobook
+ROOT = Path(os.environ.get("EMOBOOK_ROOT", PKG_ROOT))
+
+RES_DIR   = ROOT / "resources"
+DATA_DIR  = ROOT / "data"
+RAW_DIR   = DATA_DIR / "raw"
 CLEAN_DIR = DATA_DIR / "clean"
 CHUNK_DIR = DATA_DIR / "chunks"
-SCORED_DIR = DATA_DIR / "scored"
-for d in (CLEAN_DIR, CHUNK_DIR, SCORED_DIR): d.mkdir(parents=True, exist_ok=True)
+SCORED_DIR= DATA_DIR / "scored"
 
+# Ensure directories exist (won't error if already present)
+for _d in (DATA_DIR, RAW_DIR, CLEAN_DIR, CHUNK_DIR, SCORED_DIR, RES_DIR):
+    _d.mkdir(parents=True, exist_ok=True)
+    
 CHUNK_TARGET = int(os.environ.get("CHUNK_TARGET", 120))
 CHUNK_STRIDE = int(os.environ.get("CHUNK_STRIDE", 60))
 CHUNK_CAP    = int(os.environ.get("CHUNK_CAP", 220))
