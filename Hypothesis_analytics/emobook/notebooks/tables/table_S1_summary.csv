@@ -1,0 +1,6 @@
+book,title,num_chunks,words_total,mean_words_per_chunk,min_words_per_chunk,max_words_per_chunk,target,stride,cap,method,avg_coverage,mean_theta_deg,pct_opp_A,pct_opp_D,mean_diff_abs
+Frankenstein.clean,Frankenstein,1559,75023,108.04,70,220,120,60,220,sentence+word-pack,0.6869895150737653,80.20011450775611,80.0,0.0,0.02616678047206588
+Mobi Dick.clean,Moby Dick,4194,212780,110.48,61,220,120,60,220,sentence+word-pack,0.6937447691940869,69.18697247717584,50.0,0.0,0.04913446686304063
+Pride and Prejudice.clean,Pride & Prejudice,2598,127359,108.91,65,220,120,60,220,sentence+word-pack,0.6986762617397998,51.30734978471055,40.0,20.0,0.03834585259171599
+Romeo and Juliet.clean,Romeo & Juliet,499,25946,111.88,66,205,120,60,220,sentence+word-pack,0.678822248496994,85.07138235405304,80.0,0.0,0.036375811563443536
+The Adventures of Sherlock Holmes.clean,Sherlock Holmes,2168,104496,108.08,62,220,120,60,220,sentence+word-pack,0.6973372656826569,74.9444988291674,60.0,0.0,0.060210575536260816

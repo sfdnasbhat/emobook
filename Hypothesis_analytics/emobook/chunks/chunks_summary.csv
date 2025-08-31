@@ -1,0 +1,6 @@
+book,num_chunks,words_total,mean_words_per_chunk,min_words_per_chunk,max_words_per_chunk,target,stride,cap,method
+Frankenstein.clean,1559,75023,108.04,70,220,120,60,220,sentence+word-pack
+Mobi Dick.clean,4194,212780,110.48,61,220,120,60,220,sentence+word-pack
+Pride and Prejudice.clean,2598,127359,108.91,65,220,120,60,220,sentence+word-pack
+Romeo and Juliet.clean,499,25946,111.88,66,205,120,60,220,sentence+word-pack
+The Adventures of Sherlock Holmes.clean,2168,104496,108.08,62,220,120,60,220,sentence+word-pack
