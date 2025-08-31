@@ -1,19 +1,19 @@
 services:
   ollama:
-    image: ollama/ollama:latest          # 👈 Docker Hub (not ghcr)
+    image: ollama/ollama:latest            # Docker Hub image
     container_name: ollama
     ports:
-      - "11434:11434"                    # optional: access from host
+      - "11434:11434"                      # optional: expose to host
     volumes:
-      - ollama:/root/.ollama             # persist pulled models
-    healthcheck:                         # no curl/wget needed
-      test: ["CMD", "ollama", "ps"]
+      - ollama_models:/root/.ollama        # persist models
+    healthcheck:
+      test: ["CMD", "ollama", "ps"]        # no curl/wget required
       interval: 10s
       timeout: 5s
       retries: 30
     restart: unless-stopped
 
-  # one-shot model pull (uses .env OLLAMA_MODEL)
+  # One-shot model pull (uses .env OLLAMA_MODEL, default llama3.1:8b)
   ollama-init:
     image: ollama/ollama:latest
     container_name: ollama-init
@@ -26,27 +26,36 @@ services:
       - OLLAMA_HOST=http://ollama:11434
     entrypoint: ["/bin/sh","-lc","ollama pull \"${OLLAMA_MODEL:-llama3.1:8b}\""]
     volumes:
-      - ollama:/root/.ollama
+      - ollama_models:/root/.ollama
     restart: "no"
 
-  api:
+  # Gradio UI (no FastAPI)
+  emobook-ui:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.api
-    image: emobook-api:latest
+      context: ..                           # project root
+      dockerfile: docker/Dockerfile.gradio  # path is relative to context
+    image: emobook/gradio:latest
+    container_name: emobook-ui
     env_file:
       - ../.env
     environment:
-      - EMOBOOK_ROOT=/app
-      - EMOBOOK_VAD_LEXICON=/app/resources/NRC-VAD-Lexicon-v2.1/NRC-VAD-Lexicon-v2.1.txt
-      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
-    volumes:
-      - ../resources:/app/resources:ro
-      - ../data:/app/data
-      - ../benchmarks:/app/benchmarks
-      - ../uploads:/app/uploads
+      EMOBOOK_ROOT: /app/emobook
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      GRADIO_SERVER_NAME: 0.0.0.0
+      GRADIO_SERVER_PORT: "7860"
+      # ensure gradio doesn't try to proxy localhost
+      NO_PROXY: 127.0.0.1,localhost
+      no_proxy: 127.0.0.1,localhost
+      HTTP_PROXY: ""
+      http_proxy: ""
+      HTTPS_PROXY: ""
+      https_proxy: ""
     ports:
-      - "8000:8000"
+      - "7860:7860"
+    volumes:
+      # persist only user outputs
+      - emobook_data:/app/emobook/data
+      - emobook_uploads:/app/emobook/uploads
     depends_on:
       ollama:
         condition: service_healthy
@@ -55,4 +64,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  ollama:
+  ollama_models:
+  emobook_data:
+  emobook_uploads:

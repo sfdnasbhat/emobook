@@ -1,0 +1,41 @@
+FROM python:3.12-slim
+
+# minimal build deps + curl for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl gcc g++ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 1) deps first (layer cache)
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir --upgrade gradio
+
+# 2) copy app code & resources
+# Your layout: src/emobook/, resources/, README.md
+COPY src/emobook ./emobook
+COPY resources ./emobook/resources
+COPY README.md ./README.md
+
+# 3) main entry (your minimal LLM-only app)
+#    If app_gradio.py lives in src/emobook/, copy it to /app/app_gradio.py
+COPY src/emobook/app_gradio.py ./app_gradio.py
+
+# runtime env
+ENV EMOBOOK_ROOT=/app/emobook \
+    PYTHONUNBUFFERED=1 \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    GRADIO_SERVER_PORT=7860 \
+    NO_PROXY=127.0.0.1,localhost \
+    no_proxy=127.0.0.1,localhost \
+    HTTP_PROXY= \
+    http_proxy= \
+    HTTPS_PROXY= \
+    https_proxy=
+
+# run as root to dodge volume permission errors (simplest + consistent)
+USER root
+EXPOSE 7860
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -fsS http://127.0.0.1:7860/ || exit 1
+
+CMD ["python", "app_gradio.py"]
