@@ -1,0 +1,6 @@
+file,chars_raw,chars_clean,reduction_%,contents_removed
+Frankenstein.txt,438806,419006,4.51,True
+Mobi Dick.txt,1238226,1218030,1.63,True
+Pride and Prejudice.txt,748126,721387,3.57,False
+Romeo and Juliet.txt,161779,142317,12.03,True
+The Adventures of Sherlock Holmes.txt,581565,561782,3.4,True
